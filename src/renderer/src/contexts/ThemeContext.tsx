@@ -160,25 +160,50 @@ function hslToHex(h: number, s: number, l: number): string {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-// Generate a shade scale from a base color
-function generateShadeScale(baseHex: string): Record<number, string> {
+// Generate a shade scale from a base color. Saturation is boosted as
+// lightness moves away from the base so tints stay vivid and shades stay rich
+// instead of turning muddy gray. In dark mode the dark end is lifted so
+// accent-colored buttons/toggles stay bright against dark surfaces.
+function generateShadeScale(
+  baseHex: string,
+  isDark = false,
+): Record<number, string> {
   const { h, s, l } = hexToHsl(baseHex);
   const scale: Record<number, string> = {};
+  const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
+  // Minimum lightness for 600-900 so accents stay visible on dark backgrounds
+  const darkFloor: Record<number, number> = {
+    600: 40,
+    700: 36,
+    800: 32,
+    900: 28,
+  };
 
-  // Generate shades from 50 to 900 in steps of 100
-  for (let i = 50; i <= 900; i += 100) {
-    // Lightness adjustment based on the scale
-    let lightness = l;
-    if (i <= 500) {
-      // Lighter shades (50-500)
-      lightness = l + ((500 - i) / 500) * (100 - l);
+  for (const step of steps) {
+    let lightness: number;
+    let saturation = s;
+
+    if (step < 500) {
+      const t = (500 - step) / 450; // 0 at 500 → 1 at 50
+      lightness = l + (97 - l) * t;
+      saturation = s + (100 - s) * t * 0.7;
+    } else if (step === 500) {
+      lightness = l;
     } else {
-      // Darker shades (600-900)
-      lightness = l - ((i - 500) / 500) * l;
+      const t = (step - 500) / 400; // 0 at 500 → 1 at 900
+      lightness = l * (1 - t * 0.72);
+      saturation = Math.min(100, s + t * 32);
+      if (isDark) {
+        lightness = Math.max(lightness, l - t * 14, darkFloor[step] ?? 0);
+        saturation = Math.min(100, s + (100 - s) * t * 0.7);
+      }
     }
-    // Keep lightness in valid range
-    lightness = Math.max(0, Math.min(100, lightness));
-    scale[i] = hslToHex(h, s, lightness);
+
+    scale[step] = hslToHex(
+      h,
+      Math.round(Math.max(0, Math.min(100, saturation))),
+      Math.round(Math.max(0, Math.min(100, lightness))),
+    );
   }
 
   return scale;
@@ -189,7 +214,7 @@ function applyTheme(theme: ThemeSettings, isDark: boolean): void {
   const root = document.documentElement;
 
   // Generate accent color scale (brand colors)
-  const accentScale = generateShadeScale(theme.accent);
+  const accentScale = generateShadeScale(theme.accent, isDark);
 
   const clamp = (v: number, lo: number, hi: number): number =>
     Math.min(hi, Math.max(lo, v));
@@ -209,9 +234,11 @@ function applyTheme(theme: ThemeSettings, isDark: boolean): void {
     // while lightness is forced into dark-mode ranges.
     surface = hslToHex(bg.h, bg.s, clamp(bg.l, 4, 14));
     panel = hslToHex(bg.h, bg.s, clamp(bg.l + 7, 10, 20));
-    ink = hslToHex(text.h, clamp(text.s, 0, 25), clamp(text.l, 88, 97));
-    ink2 = hslToHex(text.h, clamp(text.s, 0, 22), 72);
-    ink3 = hslToHex(text.h, clamp(text.s, 0, 18), 55);
+    // Keep the user's text hue AND saturation — only pin lightness into the
+    // readable range for dark surfaces. Low saturation clamps gray the color out.
+    ink = hslToHex(text.h, clamp(text.s, 0, 70), clamp(text.l, 85, 98));
+    ink2 = hslToHex(text.h, clamp(text.s, 0, 60), 74);
+    ink3 = hslToHex(text.h, clamp(text.s, 0, 50), 58);
     line = hslToHex(border.h, border.s, clamp(border.l, 14, 26));
   } else {
     surface = theme.background;
