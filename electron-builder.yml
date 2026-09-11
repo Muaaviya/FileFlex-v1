@@ -1,0 +1,9 @@
+appId: com.fileflex.app
+productName: FileFlex
+directories:
+  output: release
+files:
+  - out/**
+win:
+  target:
+    - nsis

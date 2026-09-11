@@ -1,0 +1,39 @@
+{
+  "name": "fileflex",
+  "version": "0.1.0",
+  "description": "Local-first folder cleanup: standardized names, duplicate detection, safe merges — nothing changes until you approve.",
+  "main": "./out/main/index.js",
+  "author": "FileFlex",
+  "private": true,
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "test": "vitest run",
+    "dist": "electron-vite build && electron-builder"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.8",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.5.0",
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.0",
+    "electron-vite": "^3.1.0",
+    "tailwindcss": "^4.1.8",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.0"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.0",
+    "zustand": "^5.0.5"
+  },
+  "allowScripts": {
+    "electron@37.10.3": true
+  }
+}
