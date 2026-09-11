@@ -1,38 +1,68 @@
-import { useState } from 'react'
-import { formatDateTime } from '../../../shared/format'
-import type { Batch } from '../../../shared/types'
-import { ChevronDownIcon, ChevronRightIcon, ClockIcon, UndoIcon } from '../components/icons'
-import { Button, Chip, ConfirmButton, EmptyState, PageHeader, TrustBanner } from '../components/ui'
-import { useStore } from '../store'
+import { useState } from "react";
+import { formatDateTime } from "../../../shared/format";
+import type { Batch } from "../../../shared/types";
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  ClockIcon,
+  UndoIcon,
+} from "../components/icons";
+import {
+  Button,
+  Chip,
+  ConfirmButton,
+  EmptyState,
+  PageHeader,
+  TrustBanner,
+} from "../components/ui";
+import { useStore } from "../store";
 
-function StatusChip({ status }: { status: Batch['status'] | 'ok' | 'error' | 'undone' }) {
-  const map: Record<string, { tone: 'ok' | 'warn' | 'bad' | 'neutral'; label: string }> = {
-    applied: { tone: 'ok', label: 'Applied' },
-    undone: { tone: 'neutral', label: 'Undone' },
-    partial: { tone: 'warn', label: 'Partial' },
-    ok: { tone: 'ok', label: 'Done' },
-    error: { tone: 'bad', label: 'Failed' }
-  }
-  const { tone, label } = map[status]
-  return <Chip tone={tone}>{label}</Chip>
+function StatusChip({
+  status,
+}: {
+  status: Batch["status"] | "ok" | "error" | "undone";
+}) {
+  const map: Record<
+    string,
+    { tone: "ok" | "warn" | "bad" | "neutral"; label: string }
+  > = {
+    applied: { tone: "ok", label: "Applied" },
+    undone: { tone: "neutral", label: "Undone" },
+    partial: { tone: "warn", label: "Partial" },
+    ok: { tone: "ok", label: "Done" },
+    error: { tone: "bad", label: "Failed" },
+  };
+  const { tone, label } = map[status];
+  return <Chip tone={tone}>{label}</Chip>;
 }
 
 function BatchCard({ batch }: { batch: Batch }) {
-  const undoBatch = useStore((s) => s.undoBatch)
-  const [open, setOpen] = useState(false)
-  const errors = batch.ops.filter((o) => o.status === 'error').length
-  const canUndo = batch.status === 'applied' || batch.status === 'partial'
+  const undoBatch = useStore((s) => s.undoBatch);
+  const [open, setOpen] = useState(false);
+  const errors = batch.ops.filter((o) => o.status === "error").length;
+  const canUndo = batch.status === "applied" || batch.status === "partial";
 
   return (
     <section className="overflow-hidden rounded-lg border border-line bg-panel">
       <header className="flex items-center gap-3 px-4 py-3">
-        <button onClick={() => setOpen(!open)} className="text-ink-3 hover:text-ink" aria-label={open ? 'Collapse' : 'Expand'}>
-          {open ? <ChevronDownIcon className="h-4 w-4" /> : <ChevronRightIcon className="h-4 w-4" />}
+        <button
+          onClick={() => setOpen(!open)}
+          className="text-ink-3 hover:text-ink"
+          aria-label={open ? "Collapse" : "Expand"}
+        >
+          {open ? (
+            <ChevronDownIcon className="h-4 w-4" />
+          ) : (
+            <ChevronRightIcon className="h-4 w-4" />
+          )}
         </button>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[13px] font-medium text-ink">{batch.label}</div>
+          <div className="truncate text-[13px] font-medium text-ink">
+            {batch.label}
+          </div>
           <div className="tnum mt-0.5 text-xs text-ink-3">
-            {formatDateTime(batch.appliedAt)} · {batch.ops.length} operation{batch.ops.length === 1 ? '' : 's'}
+            {formatDateTime(batch.appliedAt)} · {batch.ops.length} operation
+            {batch.ops.length === 1 ? "" : "s"}
             {errors > 0 && ` · ${errors} failed`}
           </div>
         </div>
@@ -65,13 +95,21 @@ function BatchCard({ batch }: { batch: Batch }) {
                 <tr key={i} className="align-top">
                   <td className="pb-1.5 pr-2 text-ink-2">{op.kind}</td>
                   <td className="pb-1.5 pr-2">
-                    <div className="truncate font-mono text-ink" title={op.from}>
+                    <div
+                      className="truncate font-mono text-ink"
+                      title={op.from}
+                    >
                       {op.from}
                     </div>
-                    <div className="truncate font-mono text-ink-2" title={op.to}>
+                    <div
+                      className="truncate font-mono text-ink-2"
+                      title={op.to}
+                    >
                       → {op.to}
                     </div>
-                    {op.error && <div className="mt-0.5 text-bad-600">{op.error}</div>}
+                    {op.error && (
+                      <div className="mt-0.5 text-bad-600">{op.error}</div>
+                    )}
                   </td>
                   <td className="pb-1.5 text-right">
                     <StatusChip status={op.status} />
@@ -83,11 +121,11 @@ function BatchCard({ batch }: { batch: Batch }) {
         </div>
       )}
     </section>
-  )
+  );
 }
 
 export default function HistoryPage() {
-  const history = useStore((s) => s.history)
+  const history = useStore((s) => s.history);
 
   return (
     <div>
@@ -96,8 +134,9 @@ export default function HistoryPage() {
         subtitle="Every applied change is logged here as a batch. Undo restores the exact previous state."
       />
       <TrustBanner>
-        Undo moves files back to their original locations, last operation first. If a name is taken, the file returns
-        alongside it with a “(restored)” suffix — nothing is ever lost.
+        Undo moves files back to their original locations, last operation first.
+        If a name is taken, the file returns alongside it with a “(restored)”
+        suffix — nothing is ever lost.
       </TrustBanner>
 
       {history.length === 0 ? (
@@ -114,5 +153,5 @@ export default function HistoryPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

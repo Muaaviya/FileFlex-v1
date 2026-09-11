@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --font-mono: "Cascadia Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+  --font-sans:
+    "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono:
+    "Cascadia Mono", "Cascadia Code", Consolas, "Courier New", monospace;
 
   --color-ink: #17202b;
   --color-ink-2: #5c6774;
