@@ -114,10 +114,22 @@ class Store {
 
   private readJson<T>(name: string, fallback: T): T {
     try {
-      return {
-        ...fallback,
-        ...JSON.parse(fs.readFileSync(this.file(name), "utf-8")),
-      };
+      const parsed: unknown = JSON.parse(
+        fs.readFileSync(this.file(name), "utf-8"),
+      );
+      // Array-backed files (rules, history) must never go through the object
+      // merge: spreading an array into {...} yields a plain object with numeric
+      // keys, which crashes consumers that iterate it.
+      if (Array.isArray(fallback)) {
+        if (Array.isArray(parsed)) return parsed as T;
+        if (parsed && typeof parsed === "object")
+          return Object.values(parsed as Record<string, unknown>) as T;
+        return fallback;
+      }
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        return { ...(fallback as object), ...(parsed as object) } as T;
+      }
+      return fallback;
     } catch {
       return fallback;
     }

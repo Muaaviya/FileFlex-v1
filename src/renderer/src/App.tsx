@@ -4,6 +4,7 @@ import {
   NavLink,
   Route,
   Routes,
+  useLocation,
   useNavigate,
 } from "react-router-dom";
 import { formatDate } from "../../shared/format";
@@ -18,7 +19,7 @@ import {
   TagIcon,
 } from "./components/icons";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { Toasts } from "./components/ui";
+import { ErrorBoundary, Toasts } from "./components/ui";
 import HistoryPage from "./pages/HistoryPage";
 import ReviewApprove from "./pages/ReviewApprove";
 import RulesPage from "./pages/RulesPage";
@@ -160,6 +161,25 @@ function RouteFallback() {
   return null;
 }
 
+/** Keyed by pathname so a caught page error clears on navigation. */
+function BoundRoutes() {
+  const location = useLocation();
+  return (
+    <ErrorBoundary key={location.pathname}>
+      <Routes>
+        <Route path="/" element={<ScanSetup />} />
+        <Route path="/results" element={<ScanResults />} />
+        <Route path="/queue" element={<SuggestionsQueue />} />
+        <Route path="/review" element={<ReviewApprove />} />
+        <Route path="/history" element={<HistoryPage />} />
+        <Route path="/rules" element={<RulesPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="*" element={<RouteFallback />} />
+      </Routes>
+    </ErrorBoundary>
+  );
+}
+
 export default function App() {
   const init = useStore((s) => s.init);
   const toasts = useStore((s) => s.toasts);
@@ -176,16 +196,7 @@ export default function App() {
           <Sidebar />
           <main className="h-full flex-1 overflow-y-auto">
             <div className="mx-auto max-w-[1120px] px-7 py-6">
-              <Routes>
-                <Route path="/" element={<ScanSetup />} />
-                <Route path="/results" element={<ScanResults />} />
-                <Route path="/queue" element={<SuggestionsQueue />} />
-                <Route path="/review" element={<ReviewApprove />} />
-                <Route path="/history" element={<HistoryPage />} />
-                <Route path="/rules" element={<RulesPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="*" element={<RouteFallback />} />
-              </Routes>
+              <BoundRoutes />
             </div>
           </main>
         </div>
