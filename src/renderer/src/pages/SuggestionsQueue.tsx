@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { formatBytes } from "../../../shared/format";
 import { splitPath } from "../../../shared/naming";
 import type { Suggestion, SuggestionKind } from "../../../shared/types";
 import { ArrowRightIcon, CheckSquareIcon, ListIcon } from "../components/icons";
@@ -31,6 +32,23 @@ const KIND_TONES: Record<SuggestionKind, "brand" | "warn" | "ok" | "neutral"> =
 
 type Tab = "all" | SuggestionKind;
 type ConfFilter = "all" | "high" | "medium" | "low";
+type SortKey = "kind" | "name" | "size" | "confidence";
+type SortDir = "asc" | "desc";
+
+const KIND_ORDER: Record<SuggestionKind, number> = {
+  rename: 0,
+  duplicate: 1,
+  merge: 2,
+  move: 3,
+};
+
+/** Direction applied on the first click of a column header. */
+const PRIMARY_DIR: Record<SortKey, SortDir> = {
+  kind: "asc",
+  name: "asc",
+  size: "desc",
+  confidence: "desc",
+};
 
 function ProposedCell({ s }: { s: Suggestion }) {
   const to = splitPath(s.to);
@@ -49,6 +67,43 @@ function ProposedCell({ s }: { s: Suggestion }) {
   );
 }
 
+function SortHeader({
+  label,
+  sortKey,
+  sort,
+  onSort,
+  th,
+}: {
+  label: string;
+  sortKey: SortKey;
+  sort: { key: SortKey | null; dir: SortDir };
+  onSort: (k: SortKey) => void;
+  th: string;
+}) {
+  const active = sort.key === sortKey;
+  return (
+    <th className={th}>
+      <button
+        type="button"
+        onClick={() => onSort(sortKey)}
+        className={`inline-flex w-full items-center gap-1 rounded text-left hover:text-ink ${
+          active ? "text-ink" : ""
+        } ${th.includes("text-right") ? "justify-end" : ""}`}
+        title="Click to sort; click again to flip; a third click restores default order"
+      >
+        {label}
+        <span
+          className={`text-[9px] leading-none ${
+            active ? "text-brand-700" : "text-transparent"
+          }`}
+        >
+          {active && sort.dir === "asc" ? "▲" : "▼"}
+        </span>
+      </button>
+    </th>
+  );
+}
+
 export default function SuggestionsQueue() {
   const navigate = useNavigate();
   const scan = useStore((s) => s.scan);
@@ -63,11 +118,34 @@ export default function SuggestionsQueue() {
   const [query, setQuery] = useState("");
   const [conf, setConf] = useState<ConfFilter>("all");
   const [showHandled, setShowHandled] = useState(false);
+  const [sort, setSort] = useState<{ key: SortKey | null; dir: SortDir }>({
+    key: null,
+    dir: "desc",
+  });
+
+  const sizeByPath = useMemo(() => {
+    const m = new Map<string, number>();
+    if (scan) for (const f of scan.files) m.set(f.path, f.size);
+    return m;
+  }, [scan]);
+
+  function cycleSort(key: SortKey): void {
+    setSort((cur) => {
+      if (cur.key !== key) return { key, dir: PRIMARY_DIR[key] };
+      if (cur.dir === PRIMARY_DIR[key])
+        return { key, dir: cur.dir === "asc" ? "desc" : "asc" };
+      return { key: null, dir: "desc" };
+    });
+  }
 
   const rows = useMemo(() => {
     if (!scan) return [];
-    const q = query.trim().toLowerCase();
-    return scan.suggestions.filter((s) => {
+    const terms = query
+      .trim()
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean);
+    const filtered = scan.suggestions.filter((s) => {
       if (tab !== "all" && s.kind !== tab) return false;
       const d = decisions[s.id];
       if (!showHandled && d) return false;
@@ -75,15 +153,41 @@ export default function SuggestionsQueue() {
       if (conf === "medium" && (s.confidence < 0.6 || s.confidence >= 0.85))
         return false;
       if (conf === "low" && s.confidence >= 0.6) return false;
-      if (
-        q &&
-        !s.from.toLowerCase().includes(q) &&
-        !s.to.toLowerCase().includes(q)
-      )
-        return false;
+      if (terms.length) {
+        const haystack = [
+          s.from,
+          s.to,
+          s.reason,
+          s.groupLabel ?? "",
+          KIND_LABELS[s.kind],
+          ...s.tags,
+        ]
+          .join(" ")
+          .toLowerCase();
+        if (!terms.every((t) => haystack.includes(t))) return false;
+      }
       return true;
     });
-  }, [scan, decisions, tab, query, conf, showHandled]);
+    if (!sort.key) return filtered;
+    const mul = sort.dir === "asc" ? 1 : -1;
+    const cmp = {
+      kind: (a: Suggestion, b: Suggestion) =>
+        KIND_ORDER[a.kind] - KIND_ORDER[b.kind],
+      name: (a: Suggestion, b: Suggestion) => {
+        const an = splitPath(a.from);
+        const bn = splitPath(b.from);
+        return (
+          an.name.localeCompare(bn.name, undefined, { numeric: true }) ||
+          an.dir.localeCompare(bn.dir)
+        );
+      },
+      size: (a: Suggestion, b: Suggestion) =>
+        (sizeByPath.get(a.from) ?? 0) - (sizeByPath.get(b.from) ?? 0),
+      confidence: (a: Suggestion, b: Suggestion) =>
+        a.confidence - b.confidence,
+    }[sort.key];
+    return [...filtered].sort((a, b) => cmp(a, b) * mul);
+  }, [scan, decisions, tab, query, conf, showHandled, sort, sizeByPath]);
 
   if (!scan) {
     return (
@@ -172,8 +276,8 @@ export default function SuggestionsQueue() {
         </div>
         <div className="ml-auto flex items-center gap-2">
           <input
-            className={`${inputCls} w-56 font-mono text-xs`}
-            placeholder="Filter by path…"
+            className={`${inputCls} w-64 font-mono text-xs`}
+            placeholder="Search paths, reasons, tags…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -195,6 +299,11 @@ export default function SuggestionsQueue() {
             />
             Show handled
           </label>
+          {(query.trim() || conf !== "all") && (
+            <span className="tnum whitespace-nowrap text-xs text-ink-3">
+              {rows.length} of {scan.suggestions.length} shown
+            </span>
+          )}
         </div>
       </div>
 
@@ -226,10 +335,35 @@ export default function SuggestionsQueue() {
                     aria-label="Select all"
                   />
                 </th>
-                <th className="w-20 px-2 py-2 font-medium">Kind</th>
-                <th className="px-2 py-2 font-medium">Current file</th>
+                <SortHeader
+                  label="Kind"
+                  sortKey="kind"
+                  sort={sort}
+                  onSort={cycleSort}
+                  th="w-20 px-2 py-2 font-medium"
+                />
+                <SortHeader
+                  label="Current file"
+                  sortKey="name"
+                  sort={sort}
+                  onSort={cycleSort}
+                  th="px-2 py-2 font-medium"
+                />
                 <th className="px-2 py-2 font-medium">Proposed</th>
-                <th className="w-28 px-2 py-2 font-medium">Confidence</th>
+                <SortHeader
+                  label="Size"
+                  sortKey="size"
+                  sort={sort}
+                  onSort={cycleSort}
+                  th="w-20 px-2 py-2 text-right font-medium"
+                />
+                <SortHeader
+                  label="Confidence"
+                  sortKey="confidence"
+                  sort={sort}
+                  onSort={cycleSort}
+                  th="w-28 px-2 py-2 font-medium"
+                />
                 <th className="px-2 py-2 font-medium">Why</th>
               </tr>
             </thead>
@@ -274,6 +408,12 @@ export default function SuggestionsQueue() {
                       >
                         {from.name}
                       </div>
+                    </td>
+                    <td
+                      className="tnum w-20 px-2 py-2 text-right align-top text-xs text-ink-2"
+                      title={`${sizeByPath.get(s.from) ?? 0} bytes`}
+                    >
+                      {formatBytes(sizeByPath.get(s.from) ?? 0)}
                     </td>
                     <td className="max-w-[280px] px-2 py-2 align-top">
                       <ProposedCell s={s} />
