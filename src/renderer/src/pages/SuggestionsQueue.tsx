@@ -140,11 +140,7 @@ export default function SuggestionsQueue() {
 
   const rows = useMemo(() => {
     if (!scan) return [];
-    const terms = query
-      .trim()
-      .toLowerCase()
-      .split(/\s+/)
-      .filter(Boolean);
+    const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
     const filtered = scan.suggestions.filter((s) => {
       if (tab !== "all" && s.kind !== tab) return false;
       const d = decisions[s.id];
@@ -183,8 +179,7 @@ export default function SuggestionsQueue() {
       },
       size: (a: Suggestion, b: Suggestion) =>
         (sizeByPath.get(a.from) ?? 0) - (sizeByPath.get(b.from) ?? 0),
-      confidence: (a: Suggestion, b: Suggestion) =>
-        a.confidence - b.confidence,
+      confidence: (a: Suggestion, b: Suggestion) => a.confidence - b.confidence,
     }[sort.key];
     return [...filtered].sort((a, b) => cmp(a, b) * mul);
   }, [scan, decisions, tab, query, conf, showHandled, sort, sizeByPath]);
