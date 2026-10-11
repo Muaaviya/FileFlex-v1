@@ -9,6 +9,7 @@ import {
 } from "../components/icons";
 import {
   Button,
+  Checkbox,
   Chip,
   ConfidenceChip,
   EmptyState,
@@ -66,9 +67,7 @@ function DiffRow({
 }) {
   return (
     <div className={`flex gap-3 px-4 py-2.5 ${included ? "" : "opacity-40"}`}>
-      <input
-        type="checkbox"
-        className="mt-1"
+      <Checkbox
         checked={included}
         onChange={onToggle}
         aria-label="Include this change"

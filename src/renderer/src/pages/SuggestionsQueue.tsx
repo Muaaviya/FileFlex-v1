@@ -6,6 +6,7 @@ import type { Suggestion, SuggestionKind } from "../../../shared/types";
 import { ArrowRightIcon, CheckSquareIcon, ListIcon } from "../components/icons";
 import {
   Button,
+  Checkbox,
   Chip,
   ConfidenceChip,
   EmptyState,
@@ -287,10 +288,9 @@ export default function SuggestionsQueue() {
             <option value="low">Low &lt; 60%</option>
           </select>
           <label className="flex cursor-pointer select-none items-center gap-1.5 text-xs text-ink-2">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={showHandled}
-              onChange={(e) => setShowHandled(e.target.checked)}
+              onChange={setShowHandled}
             />
             Show handled
           </label>
@@ -318,13 +318,12 @@ export default function SuggestionsQueue() {
             <thead>
               <tr className="border-b border-line bg-panel text-left text-xs text-ink-2">
                 <th className="w-8 px-3 py-2">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={allSelected}
-                    onChange={(e) =>
+                    onChange={(checked) =>
                       selectMany(
                         rows.map((r) => r.id),
-                        e.target.checked,
+                        checked,
                       )
                     }
                     aria-label="Select all"
@@ -372,10 +371,9 @@ export default function SuggestionsQueue() {
                     className={`border-b border-line/60 last:border-b-0 ${d ? "opacity-45" : "hover:bg-surface/60"}`}
                   >
                     <td className="px-3 py-2 align-top">
-                      <input
-                        type="checkbox"
-                        disabled={!!d}
+                      <Checkbox
                         checked={!!selection[s.id]}
+                        disabled={!!d}
                         onChange={() => toggleSelect(s.id)}
                         aria-label="Select row"
                       />
