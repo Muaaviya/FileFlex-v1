@@ -81,6 +81,7 @@ export const DEFAULT_SETTINGS: Settings = {
     border: "#e4e8ee", // line
     background: "#f6f8fa", // surface
   },
+  themePresets: {},
 };
 
 function sleepSync(ms: number): void {
@@ -162,6 +163,7 @@ class Store {
       s.exclusions = { ...s.exclusions, ...patch.exclusions };
     if (patch.scheduler) s.scheduler = { ...s.scheduler, ...patch.scheduler };
     if (patch.theme) s.theme = { ...s.theme, ...patch.theme };
+    if (patch.themePresets) s.themePresets = patch.themePresets;
     this.writeJson("settings.json", s);
     return s;
   }

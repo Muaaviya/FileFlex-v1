@@ -1,18 +1,24 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import type { ThemePreset, ThemeSettings } from "../../../shared/types";
 import { useStore } from "../store";
 
-type ThemeSettings = {
-  mode: "light" | "dark" | "system";
-  accent: string;
-  text: string;
-  border: string;
-  background: string;
+const DEFAULT_THEME: ThemeSettings = {
+  mode: "system",
+  accent: "#2b86ac",
+  text: "#17202b",
+  border: "#e4e8ee",
+  background: "#f6f8fa",
 };
 
 interface ThemeContextProps {
   theme: ThemeSettings;
   setTheme: (patch: Partial<ThemeSettings>) => void;
   resolvedTheme: "light" | "dark";
+  presets: ThemePreset[];
+  /** Saves the live theme under `name`; overwrites in place on a name clash. */
+  savePreset: (name: string) => Promise<boolean>;
+  applyPreset: (id: string) => void;
+  deletePreset: (id: string) => Promise<void>;
 }
 
 const ThemeContext = createContext<ThemeContextProps | null>(null);
@@ -25,14 +31,10 @@ export function useTheme() {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const settings = useStore((s) => s.settings);
+  const patchSettings = useStore((s) => s.patchSettings);
+  const toast = useStore((s) => s.toast);
   const [theme, setTheme] = useState<ThemeSettings>(
-    settings?.theme ?? {
-      mode: "system",
-      accent: "#2b86ac",
-      text: "#17202b",
-      border: "#e4e8ee",
-      background: "#f6f8fa",
-    },
+    settings?.theme ?? DEFAULT_THEME,
   );
 
   // Subscribe to settings changes
@@ -64,12 +66,59 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     applyTheme(theme, resolvedTheme === "dark");
   }, [theme, resolvedTheme]);
 
+  // Presets are read from the store imperatively: two saves in a row would
+  // otherwise both compute their list from the same stale render.
+  const savePreset = async (name: string): Promise<boolean> => {
+    const trimmed = name.trim();
+    const current = useStore.getState().settings;
+    if (!trimmed || !current) return false;
+    const saved = current.themePresets ?? {};
+    const clash = Object.values(saved).find(
+      (p) => p.name.toLowerCase() === trimmed.toLowerCase(),
+    );
+    const preset: ThemePreset = clash
+      ? { ...clash, theme: { ...theme } }
+      : { id: `preset-${Date.now()}`, name: trimmed, theme: { ...theme } };
+    await patchSettings({ themePresets: { ...saved, [preset.id]: preset } });
+    toast(
+      clash
+        ? `Updated saved theme “${preset.name}”.`
+        : `Saved theme “${preset.name}”.`,
+      "ok",
+    );
+    return true;
+  };
+
+  const applyPreset = (id: string): void => {
+    const current = useStore.getState().settings;
+    const preset = current?.themePresets?.[id];
+    if (!preset) return;
+    const next = { ...preset.theme };
+    setTheme(next);
+    void patchSettings({ theme: next });
+  };
+
+  const deletePreset = async (id: string): Promise<void> => {
+    const current = useStore.getState().settings;
+    if (!current?.themePresets?.[id]) return;
+    const saved = { ...current.themePresets };
+    delete saved[id];
+    await patchSettings({ themePresets: saved });
+    toast(`Removed saved theme “${current.themePresets[id].name}”.`, "warn");
+  };
+
   return (
     <ThemeContext.Provider
       value={{
         theme,
         setTheme: (patch) => setTheme((t) => ({ ...t, ...patch })),
         resolvedTheme,
+        presets: Object.values(settings?.themePresets ?? {}).sort((a, b) =>
+          a.name.localeCompare(b.name),
+        ),
+        savePreset,
+        applyPreset,
+        deletePreset,
       }}
     >
       {children}

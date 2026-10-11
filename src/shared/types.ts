@@ -114,6 +114,12 @@ export interface ThemeSettings {
   background: string;
 }
 
+export interface ThemePreset {
+  id: string;
+  name: string;
+  theme: ThemeSettings;
+}
+
 export interface Settings {
   folders: string[];
   scan: { maxDepth: number; skipHidden: boolean };
@@ -127,6 +133,7 @@ export interface Settings {
     launchAtStartup: boolean;
   };
   theme: ThemeSettings;
+  themePresets: Record<string, ThemePreset>;
 }
 
 export interface AppInfo {
