@@ -84,7 +84,7 @@ export default function ScanResults() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+      <div className="grid grid-cols-3 gap-4 md:grid-cols-5">
         <Stat
           label="Files scanned"
           value={summary.fileCount.toLocaleString()}
@@ -122,17 +122,17 @@ export default function ScanResults() {
       )}
 
       <Card
-        className="mt-5"
+        className="mt-4"
         title="Detected file types & categories"
         padded={false}
       >
-        <table className="w-full text-[13px]">
+        <table className="w-full text-[18px]">
           <thead>
-            <tr className="border-b border-line text-left text-xs text-ink-2">
-              <th className="px-4 py-2 font-medium">Category</th>
-              <th className="px-4 py-2 text-right font-medium">Files</th>
-              <th className="px-4 py-2 text-right font-medium">Size</th>
-              <th className="px-4 py-2 font-medium">Share of folder</th>
+            <tr className="border-b border-line text-left text-lg text-ink-2">
+              <th className="px-4 py-4 font-medium">Category</th>
+              <th className="px-1 py-2 text-right font-medium">Files</th>
+              <th className="px-14 py-2 text-right font-medium">Size</th>
+              <th className="px-16 py-2 font-medium">Share of folder</th>
               <th className="px-4 py-2" />
             </tr>
           </thead>
@@ -147,27 +147,31 @@ export default function ScanResults() {
               return (
                 <Fragment key={c}>
                   <tr className="border-b border-line/60 hover:bg-surface/60">
-                    <td className="px-4 py-2 font-medium text-ink">
+                    <td className="px-4 py-4 w-64 font-medium text-ink">
                       {CATEGORY_LABELS[c]}
                     </td>
-                    <td className="tnum px-4 py-2 text-right">
+
+                    <td className="tnum px-4 py-4 text-right w-48">
                       {info.count.toLocaleString()}
                     </td>
-                    <td className="tnum px-4 py-2 text-right">
+
+                    <td className="tnum px-12 py-4 text-right w-1/6">
                       {formatBytes(info.size)}
                     </td>
-                    <td className="px-4 py-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-32 overflow-hidden rounded-full bg-surface">
+
+                    <td className="px-16 py-4 w-2xl">
+                      <div className="flex items-center gap-6">
+                        <div className="h-2.5 w-xl overflow-hidden rounded-full bg-surface">
                           <div
                             className="h-full rounded-full bg-brand-400"
                             style={{ width: `${Math.max(2, pct)}%` }}
                           />
                         </div>
-                        <span className="tnum text-xs text-ink-2">{pct}%</span>
+                        <span className="tnum text-md text-ink-2">{pct}%</span>
                       </div>
                     </td>
-                    <td className="px-4 py-2 text-right">
+
+                    <td className="px-4 py-4 text-center">
                       <Button
                         variant="ghost"
                         sm
@@ -180,12 +184,12 @@ export default function ScanResults() {
                   {open && (
                     <tr className="border-b border-line/60 bg-surface/40">
                       <td colSpan={5} className="px-4 py-3">
-                        <table className="w-full text-xs">
+                        <table className="w-full text-sm">
                           <tbody>
                             {files.slice(0, 60).map((f) => (
                               <tr key={f.id} className="align-baseline">
                                 <td
-                                  className="w-1/2 truncate py-0.5 pr-4 font-mono text-ink"
+                                  className="w-2/5 truncate py-0.5 pr-4 font-mono text-ink"
                                   title={f.path}
                                 >
                                   {f.name}
@@ -219,7 +223,7 @@ export default function ScanResults() {
         </table>
       </Card>
 
-      <div className="mt-4 flex items-center gap-2 text-xs text-ink-3">
+      <div className="mt-4 flex items-center gap-2 text-md text-ink-3">
         <FileIcon className="h-3.5 w-3.5" />
         <span>
           {scan.files.length.toLocaleString()} files indexed in this scan

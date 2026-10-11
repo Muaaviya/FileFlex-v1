@@ -112,7 +112,7 @@ export default function ScanSetup() {
         <div className="space-y-4">
           <Card title="Scan options">
             <div className="space-y-3">
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center justify-between gap-4">
                 <div>
                   <div className="text-[13px] font-medium text-ink">
                     Folder depth
@@ -158,7 +158,7 @@ export default function ScanSetup() {
                   }
                 />
               </div>
-              <div className="flex items-center justify-between gap-3 border-t border-line pt-3">
+              <div className="flex items-center justify-between gap-4 border-t border-line pt-3">
                 <div className="text-xs text-ink-2">
                   {settings.exclusions.patterns.length} exclusion patterns ·{" "}
                   {settings.exclusions.extensions.length} blocked types
@@ -175,7 +175,7 @@ export default function ScanSetup() {
           </Card>
 
           <Card title="Monthly scan">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-[13px] font-medium text-ink">
                   {settings.scheduler.enabled ? "On" : "Off"}
@@ -203,7 +203,7 @@ export default function ScanSetup() {
         <PlayIcon className="h-4 w-4 text-brand-700" />
         {scanning ? (
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 text-[13px] font-medium text-ink">
+            <div className="flex items-center gap-4 text-[13px] font-medium text-ink">
               Scanning…
               {progress && (
                 <span className="tnum text-xs font-normal text-ink-2">
