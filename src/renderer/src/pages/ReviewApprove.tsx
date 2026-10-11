@@ -246,7 +246,7 @@ export default function ReviewApprove() {
           </div>
 
           <div className="fixed bottom-0 left-[224px] right-0 z-40 border-t border-line bg-panel/95 px-7 py-3 shadow-[0_-4px_12px_rgba(23,32,43,0.05)] backdrop-blur">
-            <div className="mx-auto flex max-w-[1120px] items-center gap-3">
+            <div className="flex w-full items-center justify-between gap-3 max-w-[1120px] mx-auto">
               <span className="tnum text-[13px] text-ink">
                 <b>{renameCount}</b> rename{renameCount === 1 ? "" : "s"} ·{" "}
                 <b>{moveCount}</b> move

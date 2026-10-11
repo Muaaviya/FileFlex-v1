@@ -26,7 +26,7 @@ export function Button({
     <button
       {...rest}
       className={`inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-40 ${
-        sm ? "h-7 px-2.5 text-xs" : "h-8 px-3 text-[13px]"
+        sm ? "h-7 px-7.5 py-3 text-sm" : "h-8 px-3 text-[13px]"
       } ${BTN_VARIANTS[variant]} ${className}`}
     >
       {children}
@@ -173,7 +173,7 @@ export function Card({
         <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-2.5">
           <div>
             {title && (
-              <h2 className="text-[13px] font-semibold text-ink">{title}</h2>
+              <h2 className="text-[16px] font-semibold text-ink">{title}</h2>
             )}
             {subtitle && (
               <p className="mt-0.5 text-xs text-ink-2">{subtitle}</p>
@@ -263,13 +263,13 @@ export function Stat({
 }) {
   return (
     <div
-      className={`rounded-lg border border-line bg-panel px-4 py-3 ${className}`}
+      className={`rounded-lg border border-line bg-panel px-4 py-5 ${className}`}
     >
-      <div className="text-xs text-ink-2">{label}</div>
-      <div className="tnum mt-1 text-xl font-semibold tracking-[-0.01em] text-ink">
+      <div className="text-sm text-ink-2">{label}</div>
+      <div className="tnum mt-2 text-3xl font-semibold tracking-[-0.01em] text-ink">
         {value}
       </div>
-      {sub && <div className="tnum mt-0.5 text-xs text-ink-3">{sub}</div>}
+      {sub && <div className="tnum mt-1.5 text-xs text-ink-3">{sub}</div>}
     </div>
   );
 }
