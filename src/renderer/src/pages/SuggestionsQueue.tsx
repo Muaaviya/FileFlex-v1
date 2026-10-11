@@ -451,7 +451,7 @@ export default function SuggestionsQueue() {
 
       {selectedIds.length > 0 && (
         <div className="fixed bottom-0 left-[224px] right-0 z-40 border-t border-line bg-panel/95 px-7 py-2.5 shadow-[0_-4px_12px_rgba(23,32,43,0.05)] backdrop-blur">
-          <div className="mx-auto flex max-w-[1120px] items-center gap-3">
+          <div className="flex w-full items-center justify-between gap-3 max-w-[1120px] mx-auto">
             <span className="tnum text-[13px] font-medium text-ink">
               {selectedIds.length} selected
             </span>

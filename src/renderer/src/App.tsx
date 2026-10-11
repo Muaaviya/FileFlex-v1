@@ -195,7 +195,7 @@ export default function App() {
         <div className="flex h-full">
           <Sidebar />
           <main className="h-full flex-1 overflow-y-auto">
-            <div className="mx-auto max-w-[1120px] px-7 py-6">
+            <div className="w-full px-7 py-6">
               <BoundRoutes />
             </div>
           </main>
