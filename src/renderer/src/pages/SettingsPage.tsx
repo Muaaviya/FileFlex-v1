@@ -5,6 +5,7 @@ import {
   FolderIcon,
   FolderPlusIcon,
   PlayIcon,
+  PlusIcon,
   ShieldIcon,
   TrashIcon,
 } from "../components/icons";
@@ -88,9 +89,24 @@ export default function SettingsPage() {
   const scanning = useStore((s) => s.scanning);
   const clearHistory = useStore((s) => s.clearHistory);
   const toast = useStore((s) => s.toast);
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const {
+    theme,
+    setTheme,
+    resolvedTheme,
+    presets: savedThemes,
+    savePreset,
+    applyPreset,
+    deletePreset,
+  } = useTheme();
+  const [themeName, setThemeName] = useState("");
 
   if (!settings) return null;
+
+  const commitPreset = (): void => {
+    void savePreset(themeName).then((ok) => {
+      if (ok) setThemeName("");
+    });
+  };
   const sched = settings.scheduler;
   const previewNext = sched.enabled
     ? computeNextRun(sched.dayOfMonth, sched.time)
@@ -322,6 +338,84 @@ export default function SettingsPage() {
                 />
               </div>
             </Field>
+          </div>
+
+          <div className="mt-5 border-t border-line pt-4">
+            <div className="text-xs font-medium text-ink-2">Saved themes</div>
+            <div className="mt-0.5 text-[11px] text-ink-3">
+              Save the colors above under a name, then re-apply them any time.
+              Saving a name that already exists overwrites it.
+            </div>
+
+            <div className="mt-2.5 flex gap-2">
+              <input
+                className={`${inputCls} max-w-[260px]`}
+                placeholder="Theme name, e.g. Late night"
+                value={themeName}
+                onChange={(e) => setThemeName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    commitPreset();
+                  }
+                }}
+              />
+              <Button
+                variant="primary"
+                disabled={!themeName.trim()}
+                onClick={commitPreset}
+              >
+                <PlusIcon className="h-3.5 w-3.5" /> Save current theme
+              </Button>
+            </div>
+
+            {savedThemes.length === 0 ? (
+              <div className="mt-3 text-xs text-ink-3">
+                No saved themes yet — tune the colors and save them here.
+              </div>
+            ) : (
+              <div className="mt-3 space-y-1.5">
+                {savedThemes.map((t) => (
+                  <div
+                    key={t.id}
+                    className="flex items-center gap-2.5 rounded-md border border-line bg-surface/50 px-2.5 py-1.5"
+                  >
+                    <span className="flex h-4 w-9 shrink-0 overflow-hidden rounded-sm border border-line">
+                      <span
+                        className="h-full w-1/4"
+                        style={{ background: t.theme.accent }}
+                      />
+                      <span
+                        className="h-full w-1/4"
+                        style={{ background: t.theme.text }}
+                      />
+                      <span
+                        className="h-full w-1/4"
+                        style={{ background: t.theme.border }}
+                      />
+                      <span
+                        className="h-full w-1/4"
+                        style={{ background: t.theme.background }}
+                      />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-[13px] font-medium text-ink">
+                      {t.name}
+                    </span>
+                    <span className="shrink-0 text-[11px] capitalize text-ink-3">
+                      {t.theme.mode}
+                    </span>
+                    <Button sm onClick={() => applyPreset(t.id)}>
+                      Apply
+                    </Button>
+                    <ConfirmButton
+                      label="Delete"
+                      confirmLabel="Confirm"
+                      onConfirm={() => void deletePreset(t.id)}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </Card>
 
