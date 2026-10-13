@@ -139,13 +139,13 @@ export function Toggle({
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative h-[18px] w-8 shrink-0 rounded-full transition-colors disabled:opacity-40 ${
+      className={`relative h-[24px] w-13.5 shrink-0 rounded-full transition-colors disabled:opacity-40 ${
         checked ? "bg-brand-600" : "bg-ink-3/40"
       }`}
     >
       <span
-        className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-white shadow transition-all ${
-          checked ? "left-[16px]" : "left-[2px]"
+        className={`absolute top-[2px] h-[20px] w-[20px] rounded-full bg-white shadow transition-all ${
+          checked ? "left-[32px]" : "left-[2px]"
         }`}
       />
     </button>
