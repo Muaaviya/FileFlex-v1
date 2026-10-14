@@ -201,12 +201,10 @@ export function PageHeader({
   return (
     <div className="mb-4 flex items-start justify-between gap-4">
       <div>
-        <h1 className="text-lg font-semibold tracking-[-0.01em] text-ink">
+        <h1 className="text-3xl font-semibold tracking-[-0.01em] text-ink">
           {title}
         </h1>
-        {subtitle && (
-          <p className="mt-0.5 text-[13px] text-ink-2">{subtitle}</p>
-        )}
+        {subtitle && <p className="mt-2 text-[13px] text-ink-2">{subtitle}</p>}
       </div>
       {children && (
         <div className="flex shrink-0 items-center gap-2">{children}</div>
@@ -217,7 +215,7 @@ export function PageHeader({
 
 export function TrustBanner({ children }: { children?: ReactNode }) {
   return (
-    <div className="mb-4 flex items-center gap-2 rounded-md border border-brand-200 bg-brand-50 px-3 py-2 text-xs text-brand-800">
+    <div className="mb-4 flex items-center gap-2 rounded-md bg-panel border border-line px-3 py-2 text-md text-brand-50 font-semibold">
       <ShieldIcon className="h-3.5 w-3.5 shrink-0" />
       <span>
         {children ??

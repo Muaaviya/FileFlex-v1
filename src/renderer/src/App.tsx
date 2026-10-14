@@ -78,7 +78,7 @@ function Sidebar() {
       className={({ isActive }) =>
         `relative flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[16px] font-medium transition-colors ${
           isActive
-            ? "bg-brand-700/40 text-brand-300"
+            ? "bg-linear-to-br from-brand-500/60 to-brand-800 text-brand-100"
             : "text-ink-2 hover:bg-surface hover:text-ink"
         }`
       }
@@ -86,14 +86,14 @@ function Sidebar() {
       {({ isActive }) => (
         <>
           {isActive && (
-            <span className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r bg-brand-600" />
+            <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r bg-brand-400" />
           )}
-          <span className={isActive ? "text-brand-300" : "text-ink-3"}>
+          <span className={isActive ? "text-brand-100" : "text-ink-3"}>
             {icon}
           </span>
           <span className="flex-1">{label}</span>
           {!!badge && (
-            <span className="tnum rounded-full bg-brand-600 px-1.5 py-px text-[10px] font-semibold leading-4 text-white">
+            <span className="tnum rounded-full bg-brand-600 px-2.5 py-0.75 text-[13px] font-semibold leading-4 text-white">
               {badge}
             </span>
           )}
