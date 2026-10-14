@@ -11,6 +11,7 @@ import {
   ConfidenceChip,
   EmptyState,
   PageHeader,
+  Select,
   TrustBanner,
   inputCls,
 } from "../components/ui";
@@ -277,16 +278,17 @@ export default function SuggestionsQueue() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <select
-            className={`${inputCls} w-32`}
+          <Select
+            className="w-32"
             value={conf}
-            onChange={(e) => setConf(e.target.value as ConfFilter)}
-          >
-            <option value="all">All confidence</option>
-            <option value="high">High ≥ 85%</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low &lt; 60%</option>
-          </select>
+            onChange={(v) => setConf(v as ConfFilter)}
+            options={[
+              { value: "all", label: "All confidence" },
+              { value: "high", label: "High ≥ 85%" },
+              { value: "medium", label: "Medium" },
+              { value: "low", label: "Low < 60%" },
+            ]}
+          />
           <label className="flex cursor-pointer select-none items-center gap-1.5 text-xs text-ink-2">
             <Checkbox
               checked={showHandled}

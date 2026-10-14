@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Component, useEffect, useRef, useState } from "react";
-import { AlertIcon, CheckIcon, ShieldIcon, XIcon } from "./icons";
+import { AlertIcon, CheckIcon, ChevronDownIcon, ShieldIcon, XIcon } from "./icons";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
@@ -430,6 +430,38 @@ export function Checkbox({
       </button>
       {label && <span className="text-[13px] text-ink-2">{label}</span>}
     </label>
+  );
+}
+
+/** A styled select — rounded, panel background, focus ring, and a custom dropdown arrow that adapts to the theme. */
+export function Select({
+  value,
+  onChange,
+  options,
+  className = "",
+  ...rest
+}: {
+  value: string | number;
+  onChange: (v: string) => void;
+  options: Array<{ value: string | number; label: string }>;
+  className?: string;
+} & Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "value" | "onChange">) {
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`${inputCls} appearance-none pr-8 ${className}`}
+        {...rest}
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-ink-3" />
+    </div>
   );
 }
 

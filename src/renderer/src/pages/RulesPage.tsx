@@ -11,6 +11,7 @@ import {
   Field,
   Modal,
   PageHeader,
+  Select,
   Toggle,
   inputCls,
 } from "../components/ui";
@@ -142,16 +143,16 @@ function RuleEditor({
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Casing">
-            <select
-              className={inputCls}
+            <Select
               value={casing}
-              onChange={(e) => setCasing(e.target.value as Casing)}
-            >
-              <option value="snake">snake_case</option>
-              <option value="kebab">kebab-case</option>
-              <option value="lower">lowercase</option>
-              <option value="keep">Keep original</option>
-            </select>
+              onChange={(v) => setCasing(v as Casing)}
+              options={[
+                { value: "snake", label: "snake_case" },
+                { value: "kebab", label: "kebab-case" },
+                { value: "lower", label: "lowercase" },
+                { value: "keep", label: "Keep original" },
+              ]}
+            />
           </Field>
           <Field
             label="File types (optional)"

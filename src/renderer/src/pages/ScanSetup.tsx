@@ -13,6 +13,7 @@ import {
   Button,
   Card,
   PageHeader,
+  Select,
   Toggle,
   TrustBanner,
   inputCls,
@@ -121,24 +122,22 @@ export default function ScanSetup() {
                     How deep to look inside subfolders
                   </div>
                 </div>
-                <select
-                  className={`${inputCls} w-24`}
+                <Select
+                  className="w-24"
                   value={settings.scan.maxDepth}
-                  onChange={(e) =>
+                  onChange={(v) =>
                     void patchSettings({
                       scan: {
                         ...settings.scan,
-                        maxDepth: Number(e.target.value),
+                        maxDepth: Number(v),
                       },
                     })
                   }
-                >
-                  {[2, 4, 6, 10, 20].map((d) => (
-                    <option key={d} value={d}>
-                      {d} levels
-                    </option>
-                  ))}
-                </select>
+                  options={[2, 4, 6, 10, 20].map((d) => ({
+                    value: d,
+                    label: `${d} levels`,
+                  }))}
+                />
               </div>
               <div className="flex items-center justify-between gap-3">
                 <div>
