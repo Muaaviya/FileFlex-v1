@@ -279,7 +279,7 @@ export default function SuggestionsQueue() {
             onChange={(e) => setQuery(e.target.value)}
           />
           <Select
-            className="w-32"
+            className="w-64"
             value={conf}
             onChange={(v) => setConf(v as ConfFilter)}
             options={[
@@ -290,10 +290,7 @@ export default function SuggestionsQueue() {
             ]}
           />
           <label className="flex cursor-pointer select-none items-center gap-1.5 text-xs text-ink-2">
-            <Checkbox
-              checked={showHandled}
-              onChange={setShowHandled}
-            />
+            <Checkbox checked={showHandled} onChange={setShowHandled} />
             Show handled
           </label>
           {(query.trim() || conf !== "all") && (

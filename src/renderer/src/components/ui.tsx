@@ -1,6 +1,12 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Component, useEffect, useRef, useState } from "react";
-import { AlertIcon, CheckIcon, ChevronDownIcon, ShieldIcon, XIcon } from "./icons";
+import {
+  AlertIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ShieldIcon,
+  XIcon,
+} from "./icons";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
@@ -449,31 +455,47 @@ export function Select({
   className?: string;
 } & Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "value" | "onChange">) {
   const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const selectedOption = options.find((opt) => opt.value === value);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
+
   return (
-    <div className="relative">
+    <div className={`relative ${className}`} ref={dropdownRef}>
       {/* Trigger button that matches input styling exactly */}
       <button
         onClick={() => setOpen(!open)}
-        onFocus={() => setOpen(true)}
-        onBlur={() => setOpen(false)}
-        className={`relative w-full rounded-md border border-line bg-panel px-2.5 text-[13px] text-ink outline-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 hover:bg-brand-50 cursor-pointer ${className}`}
+        className={`relative w-full rounded-md border border-line bg-panel px-2.5 py-1 text-[14px] text-ink outline-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 hover:bg-brand-500 cursor-pointer`}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label="Select value"
       >
-        <span className="flex items-center gap-2">
-          {selectedOption?.label ?? String(value)}
+        <div className="flex w-full items-center justify-between px-1">
+          <span className="flex-1">
+            {selectedOption?.label ?? String(value)}
+          </span>
           <ChevronDownIcon className="h-3.5 w-3.5 text-ink-3" />
-        </span>
+        </div>
       </button>
 
       {/* Popover list of options */}
       {open && (
-        <div
-          className="absolute z-20 mt-1 w-full rounded-md border border-line bg-panel shadow-lg max-h-60 overflow-y-auto"
-        >
+        <div className="absolute z-20 mt-1 w-full rounded-md border border-line bg-panel shadow-lg max-h-60 overflow-y-auto">
           {options.map((o) => (
             <button
               key={o.value}
@@ -481,9 +503,7 @@ export function Select({
                 onChange(String(o.value));
                 setOpen(false);
               }}
-              onFocus={() => setOpen(true)}
-              onBlur={() => setOpen(false)}
-              className={`w-full flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[13px] text-ink hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 cursor-pointer`}
+              className={`w-full flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[13px] text-ink hover:bg-brand-500 hover:text-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 cursor-pointer whitespace-nowrap`}
             >
               <span>{o.label}</span>
             </button>
