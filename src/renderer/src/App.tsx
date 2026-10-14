@@ -28,6 +28,7 @@ import ScanSetup from "./pages/ScanSetup";
 import SettingsPage from "./pages/SettingsPage";
 import SuggestionsQueue from "./pages/SuggestionsQueue";
 import { nextRunPreview, useStore } from "./store";
+import { FolderPen } from "lucide-react";
 
 function Sidebar() {
   const scan = useStore((s) => s.scan);
@@ -75,9 +76,9 @@ function Sidebar() {
       to={to}
       end={to === "/"}
       className={({ isActive }) =>
-        `relative flex items-center gap-2.5 rounded-md px-2.5 py-[7px] text-[13px] font-medium transition-colors ${
+        `relative flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[16px] font-medium transition-colors ${
           isActive
-            ? "bg-brand-50 text-brand-800"
+            ? "bg-linear-to-br from-brand-500/60 to-brand-800 text-brand-100"
             : "text-ink-2 hover:bg-surface hover:text-ink"
         }`
       }
@@ -85,14 +86,14 @@ function Sidebar() {
       {({ isActive }) => (
         <>
           {isActive && (
-            <span className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r bg-brand-600" />
+            <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r bg-brand-400" />
           )}
-          <span className={isActive ? "text-brand-700" : "text-ink-3"}>
+          <span className={isActive ? "text-brand-100" : "text-ink-3"}>
             {icon}
           </span>
           <span className="flex-1">{label}</span>
           {!!badge && (
-            <span className="tnum rounded-full bg-brand-600 px-1.5 py-px text-[10px] font-semibold leading-4 text-white">
+            <span className="tnum rounded-full bg-brand-600 px-2.5 py-0.75 text-[13px] font-semibold leading-4 text-white">
               {badge}
             </span>
           )}
@@ -102,43 +103,43 @@ function Sidebar() {
   );
 
   return (
-    <aside className="flex w-[224px] shrink-0 flex-col border-r border-line bg-panel">
-      <div className="flex items-center gap-2.5 px-4 pb-4 pt-5">
-        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-linear-to-br from-brand-500 to-brand-800 text-[13px] font-bold text-white">
-          T
+    <aside className="flex w-64 shrink-0 flex-col border-r border-line bg-panel">
+      <div className="flex items-center gap-3 px-4 pb-4 pt-5">
+        <div className="flex h-9 w-9 items-center justify-center rounded-md bg-linear-to-br from-brand-500 to-brand-800 text-[18px] font-bold text-white">
+          <FolderPen size={24} />
         </div>
         <div>
-          <div className="text-[14px] font-semibold leading-4 tracking-[-0.01em] text-ink">
+          <div className="text-2xl font-semibold leading-12 tracking-[-0.01em] text-ink">
             FileFlex
           </div>
-          <div className="text-[10.5px] leading-3 text-ink-3">
+          {/* <div className="text-[10.5px] leading-3 text-ink-3">
             folder cleanup, approved by you
-          </div>
+          </div> */}
         </div>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2.5">
-        <div className="mb-1 mt-2 px-2.5 text-[10.5px] font-semibold uppercase tracking-wider text-ink-3">
+        <div className="mb-1 mt-2 px-2.5 text-[15px] font-semibold uppercase tracking-wider text-ink-3">
           Workflow
         </div>
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           {workflow.map((item) => (
             <Item key={item.to} {...item} />
           ))}
         </div>
-        <div className="mb-1 mt-5 px-2.5 text-[10.5px] font-semibold uppercase tracking-wider text-ink-3">
+        <div className="mb-1 mt-5 px-2.5 text-[15px] font-semibold uppercase tracking-wider text-ink-3">
           Configure
         </div>
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           {configure.map((item) => (
             <Item key={item.to} {...item} />
           ))}
         </div>
       </nav>
 
-      <div className="border-t border-line px-4 py-3 text-[11px] text-ink-3">
+      <div className="border-t border-line px-4 py-3 text-[13px] text-ink-3">
         <div className="flex items-center gap-1.5 text-ink-2">
-          <ShieldIcon className="h-3 w-3" />
+          <ShieldIcon className="h-3.5 w-3.5" />
           <span>Private by design — all local</span>
         </div>
         <div className="tnum mt-1.5">
