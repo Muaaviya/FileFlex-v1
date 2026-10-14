@@ -123,7 +123,7 @@ export default function ScanSetup() {
                   </div>
                 </div>
                 <Select
-                  className="w-24"
+                  className="w-36"
                   value={String(settings.scan.maxDepth)}
                   onChange={(v) =>
                     void patchSettings({
