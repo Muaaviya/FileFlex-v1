@@ -433,7 +433,9 @@ export function Checkbox({
   );
 }
 
-/** A styled select — rounded, panel background, focus ring, and a custom dropdown arrow that adapts to the theme. */
+/** A fully-styled select dropdown that matches the app's theme exactly.
+ *  Uses a button trigger + popover list for full CSS control.
+ *  Works with any options array and preserves onChange behavior. */
 export function Select({
   value,
   onChange,
@@ -446,21 +448,48 @@ export function Select({
   options: Array<{ value: string | number; label: string }>;
   className?: string;
 } & Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "value" | "onChange">) {
+  const [open, setOpen] = useState(false);
+  const selectedOption = options.find((opt) => opt.value === value);
+
   return (
     <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`${inputCls} appearance-none pr-8 ${className}`}
-        {...rest}
+      {/* Trigger button that matches input styling exactly */}
+      <button
+        onClick={() => setOpen(!open)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        className={`relative w-full rounded-md border border-line bg-panel px-2.5 text-[13px] text-ink outline-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 hover:bg-brand-50 cursor-pointer ${className}`}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Select value"
       >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-ink-3" />
+        <span className="flex items-center gap-2">
+          {selectedOption?.label ?? String(value)}
+          <ChevronDownIcon className="h-3.5 w-3.5 text-ink-3" />
+        </span>
+      </button>
+
+      {/* Popover list of options */}
+      {open && (
+        <div
+          className="absolute z-20 mt-1 w-full rounded-md border border-line bg-panel shadow-lg max-h-60 overflow-y-auto"
+        >
+          {options.map((o) => (
+            <button
+              key={o.value}
+              onClick={() => {
+                onChange(String(o.value));
+                setOpen(false);
+              }}
+              onFocus={() => setOpen(true)}
+              onBlur={() => setOpen(false)}
+              className={`w-full flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[13px] text-ink hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 cursor-pointer`}
+            >
+              <span>{o.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

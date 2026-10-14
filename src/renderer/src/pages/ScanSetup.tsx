@@ -124,7 +124,7 @@ export default function ScanSetup() {
                 </div>
                 <Select
                   className="w-24"
-                  value={settings.scan.maxDepth}
+                  value={String(settings.scan.maxDepth)}
                   onChange={(v) =>
                     void patchSettings({
                       scan: {
@@ -133,10 +133,13 @@ export default function ScanSetup() {
                       },
                     })
                   }
-                  options={[2, 4, 6, 10, 20].map((d) => ({
-                    value: d,
-                    label: `${d} levels`,
-                  }))}
+                  options={[
+                    { value: 2, label: "2 levels" },
+                    { value: 4, label: "4 levels" },
+                    { value: 6, label: "6 levels" },
+                    { value: 10, label: "10 levels" },
+                    { value: 20, label: "20 levels" },
+                  ]}
                 />
               </div>
               <div className="flex items-center justify-between gap-3">
