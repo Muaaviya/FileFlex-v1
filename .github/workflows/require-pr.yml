@@ -1,0 +1,39 @@
+# This file exists to demonstrate the intent of requiring PRs
+# The actual branch protection is configured in GitHub repository settings:
+# Settings > Branches > Branch protection rules > main
+#
+# Required settings:
+# - Require a pull request before merging
+# - Require approvals (minimum 1)
+# - Require status checks to pass before merging
+# - Include administrators
+#
+# This workflow provides an additional safety net by blocking direct pushes to main.
+
+name: Require PR for Main
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  enforce-pr-only:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prevent direct pushes to main
+        if: github.event_name == 'push'
+        run: |
+          echo "🚫 DIRECT PUSH TO MAIN BLOCKED"
+          echo ""
+          echo "All changes to main must come through pull requests."
+          echo ""
+          echo "To contribute:"
+          echo "1. Create a new branch from main"
+          echo "2. Make your changes on that branch"
+          echo "3. Open a pull request targeting main"
+          echo "4. Get required approvals"
+          echo "5. Ensure all checks pass"
+          echo "6. Manually merge the PR using the GitHub UI"
+          echo ""
+          echo "Direct pushes to main are not allowed."
+          exit 1

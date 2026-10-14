@@ -1,0 +1,45 @@
+name: Main Branch Protection
+
+# This workflow enforces that the main branch can only be updated via pull requests
+# It runs as a safety net alongside GitHub's built-in branch protection rules
+
+on:
+  push:
+    branches: [main]  # Trigger on pushes to main branch
+
+jobs:
+  block-direct-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Get full history for any checks if needed
+
+      - name: Enforce PR-only workflow
+        run: |
+          echo "🛡️  MAIN BRANCH PROTECTION ACTIVATED"
+          echo ""
+          echo "❌ ERROR: Direct push to main branch detected and blocked."
+          echo ""
+          echo "📋 REQUIRED WORKFLOW:"
+          echo "   1. Create a feature branch from main"
+          echo "   2. Commit your changes to that branch"
+          echo "   3. Open a Pull Request targeting main"
+          echo "   4. Request reviews from team members"
+          echo "   5. Address feedback and update the PR"
+          echo "   6. Ensure all required checks pass"
+          echo "   7. MANUALLY merge the PR using GitHub's 'Merge pull request' button"
+          echo ""
+          echo "🔧 TO FIX THIS PUSH:"
+          echo "   - Revert this direct push: git push origin main:<previous-commit>"
+          echo "   - Or reset main and re-submit changes via a PR"
+          echo ""
+          echo "💡 WHY THIS RULE EXISTS:"
+          echo "   - Ensures code review for all changes"
+          echo "   - Maintains a clean, traceable history"
+          echo "   - Prevents accidental or unreviewed changes"
+          echo "   - Enables CI/CD to run on every change via PRs"
+          echo ""
+          echo "🚫 DIRECT PUSHES TO MAIN ARE STRICTLY PROHIBITED"
+          exit 1
