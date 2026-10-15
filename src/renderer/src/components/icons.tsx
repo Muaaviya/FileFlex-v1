@@ -206,3 +206,19 @@ export const FileIcon = (p: IconProps) => (
     <polyline points="13 2 13 9 20 9" />
   </Svg>
 );
+
+export const AppLogo = (p: IconProps) => (
+  <Svg viewBox="0 0 64 64" {...p} className={p.className ?? "h-8 w-8"}>
+    <rect x="4" y="4" width="56" height="56" rx="14" fill="#1E293B" />
+    <path
+      d="M18 14h10l4 4h14a3 3 0 0 1 3 3v28a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V17a3 3 0 0 1 3-3z"
+      fill="#3B82F6"
+    />
+    <path d="M22 44h3v-6h-3v6zM22 44h1v-3h-1z" fill="#E2E8F0" />
+    <path d="M26 38h4v6h-4z" fill="#3B82F6" />
+    <path d="M32 42h3v-6h-3z" fill="#E2E8F0" />
+    <path d="M32 38h1v-3h-1z" fill="#E2E8F0" />
+    <path d="M40 40l1 1h2v-2z" fill="#60A5FA" />
+    <path d="M42 38h2v-2z" fill="#60A5FA" />
+  </Svg>
+);
