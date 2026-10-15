@@ -44,23 +44,23 @@ function BatchCard({ batch }: { batch: Batch }) {
 
   return (
     <section className="overflow-hidden rounded-lg border border-line bg-panel">
-      <header className="flex items-center gap-3 px-4 py-3">
+      <header className="flex items-center gap-3 px-4 py-4">
         <button
           onClick={() => setOpen(!open)}
-          className="text-ink-3 hover:text-ink"
+          className="text-ink hover:text-ink"
           aria-label={open ? "Collapse" : "Expand"}
         >
           {open ? (
-            <ChevronDownIcon className="h-4 w-4" />
+            <ChevronDownIcon className="h-4.5 w-4.5" />
           ) : (
-            <ChevronRightIcon className="h-4 w-4" />
+            <ChevronRightIcon className="h-4.5 w-4.5" />
           )}
         </button>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[13px] font-medium text-ink">
+          <div className="truncate text-[16px] font-medium text-ink">
             {batch.label}
           </div>
-          <div className="tnum mt-0.5 text-xs text-ink-3">
+          <div className="tnum mt-0.5 text-sm text-ink-3">
             {formatDateTime(batch.appliedAt)} · {batch.ops.length} operation
             {batch.ops.length === 1 ? "" : "s"}
             {errors > 0 && ` · ${errors} failed`}
@@ -82,19 +82,23 @@ function BatchCard({ batch }: { batch: Batch }) {
       </header>
       {open && (
         <div className="border-t border-line bg-surface/40 px-4 py-3">
-          <table className="w-full text-xs">
+          <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-ink-2">
-                <th className="w-16 pb-1 font-medium">Op</th>
-                <th className="pb-1 font-medium">From → To</th>
-                <th className="w-20 pb-1 text-right font-medium">Status</th>
+                <th className="w-16 pb-2 text-lg font-medium">Op</th>
+                <th className="pb-2 text-lg font-medium">From → To</th>
+                <th className="w-20 text-lg pb-2 text-right font-medium">
+                  Status
+                </th>
               </tr>
             </thead>
             <tbody>
               {batch.ops.map((op, i) => (
                 <tr key={i} className="align-top">
-                  <td className="pb-1.5 pr-2 text-ink-2">{op.kind}</td>
-                  <td className="pb-1.5 pr-2">
+                  <td className="pb-1.5 pr-2 text-ink-2 text-sm align-middle w-20">
+                    {op.kind}
+                  </td>
+                  <td className="pb-1.5 pr-2 py-3">
                     <div
                       className="truncate font-mono text-ink"
                       title={op.from}
@@ -102,7 +106,7 @@ function BatchCard({ batch }: { batch: Batch }) {
                       {op.from}
                     </div>
                     <div
-                      className="truncate font-mono text-ink-2"
+                      className="truncate font-mono  text-ink-2"
                       title={op.to}
                     >
                       → {op.to}
