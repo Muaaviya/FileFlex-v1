@@ -401,12 +401,6 @@ export default function SuggestionsQueue() {
                         {from.name}
                       </div>
                     </td>
-                    <td
-                      className="tnum w-20 px-2 py-2 text-right align-top text-xs text-ink-2"
-                      title={`${sizeByPath.get(s.from) ?? 0} bytes`}
-                    >
-                      {formatBytes(sizeByPath.get(s.from) ?? 0)}
-                    </td>
                     <td className="max-w-[280px] px-2 py-2 align-top">
                       <ProposedCell s={s} />
                       {s.kind === "duplicate" && s.keepPath && (
@@ -417,6 +411,12 @@ export default function SuggestionsQueue() {
                           keep: {splitPath(s.keepPath).name}
                         </div>
                       )}
+                    </td>
+                    <td
+                      className="tnum w-20 px-2 py-2 text-right align-top text-xs text-ink-2"
+                      title={`${sizeByPath.get(s.from) ?? 0} bytes`}
+                    >
+                      {formatBytes(sizeByPath.get(s.from) ?? 0)}
                     </td>
                     <td className="px-2 py-2 align-top">
                       <ConfidenceChip value={s.confidence} />
