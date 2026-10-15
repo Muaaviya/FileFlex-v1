@@ -39,11 +39,11 @@ function PathDiff({
   const mid = tone === "old" ? midA : midB;
   const markCls =
     tone === "old"
-      ? "bg-bad-100 text-bad-700 rounded px-0.5"
-      : "bg-ok-100 text-ok-700 rounded px-0.5";
+      ? "bg-bad-300 text-bad-700 rounded px-1"
+      : "bg-ok-300 text-ok-700 rounded px-1";
   return (
-    <span className="break-all font-mono text-xs">
-      <span className="text-ink-3">{pre}</span>
+    <span className="break-all font-mono text-md">
+      <span className="text-ink-2">{pre}</span>
       <span
         className={
           mid ? markCls : tone === "old" ? "text-ink" : "text-ink font-medium"
@@ -51,7 +51,7 @@ function PathDiff({
       >
         {mid}
       </span>
-      <span className="text-ink-3">{post}</span>
+      <span className="text-ink-2">{post}</span>
     </span>
   );
 }
@@ -66,7 +66,7 @@ function DiffRow({
   onToggle: () => void;
 }) {
   return (
-    <div className={`flex gap-3 px-4 py-2.5 ${included ? "" : "opacity-40"}`}>
+    <div className={`flex gap-4 px-4 py-4 ${included ? "" : "opacity-40"}`}>
       <Checkbox
         checked={included}
         onChange={onToggle}
@@ -74,13 +74,13 @@ function DiffRow({
       />
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2">
-          <span className="w-3 shrink-0 font-mono text-xs font-semibold text-bad-600">
+          <span className="w-3 shrink-0 font-mono text-md font-bold text-bad-600">
             −
           </span>
           <PathDiff oldPath={s.from} newPath={s.to} tone="old" />
         </div>
         <div className="mt-0.5 flex items-baseline gap-2">
-          <span className="w-3 shrink-0 font-mono text-xs font-semibold text-ok-600">
+          <span className="w-3 shrink-0 font-mono text-md font-bold text-ok-600">
             +
           </span>
           <PathDiff oldPath={s.from} newPath={s.to} tone="new" />
@@ -88,11 +88,11 @@ function DiffRow({
         <div className="mt-1.5 flex flex-wrap items-center gap-2 pl-5">
           <ConfidenceChip value={s.confidence} />
           {s.tags.map((t) => (
-            <Chip key={t} className="px-1! py-0! text-[10px]">
+            <Chip key={t} className="px-1.5! py-0! text-[10px]">
               {t}
             </Chip>
           ))}
-          <span className="text-xs text-ink-3">{s.detail ?? s.reason}</span>
+          <span className="text-md text-ink-3">{s.detail ?? s.reason}</span>
         </div>
       </div>
     </div>
@@ -244,8 +244,8 @@ export default function ReviewApprove() {
             ))}
           </div>
 
-          <div className="fixed bottom-0 left-[224px] right-0 z-40 border-t border-line bg-panel/95 px-7 py-3 shadow-[0_-4px_12px_rgba(23,32,43,0.05)] backdrop-blur">
-            <div className="flex w-full items-center justify-between gap-3 max-w-[1120px] mx-auto">
+          <div className="fixed bottom-0 left-64 right-0 z-40 border-t border-line bg-panel/95 px-7 py-3 shadow-[0_-4px_12px_rgba(23,32,43,0.05)] backdrop-blur">
+            <div className="flex w-full items-center justify-between gap-3 mx-auto">
               <span className="tnum text-[13px] text-ink">
                 <b>{renameCount}</b> rename{renameCount === 1 ? "" : "s"} ·{" "}
                 <b>{moveCount}</b> move

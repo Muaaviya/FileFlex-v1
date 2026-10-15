@@ -147,7 +147,7 @@ export default function ScanResults() {
               return (
                 <Fragment key={c}>
                   <tr className="border-b border-line/60 hover:bg-surface/60">
-                    <td className="px-4 py-4 w-64 font-medium text-ink">
+                    <td className="px-4 py-4 w-48 font-medium text-ink">
                       {CATEGORY_LABELS[c]}
                     </td>
 

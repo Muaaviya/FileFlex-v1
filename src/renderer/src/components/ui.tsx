@@ -99,7 +99,7 @@ export function Chip({
 }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded border px-1.5 py-px text-[11px] font-medium leading-4 ${CHIP_TONES[tone]} ${className}`}
+      className={`inline-flex items-center gap-1 rounded border px-1.5 py-px text-[13px] font-semibold leading-4 ${CHIP_TONES[tone]} ${className}`}
     >
       {children}
     </span>
