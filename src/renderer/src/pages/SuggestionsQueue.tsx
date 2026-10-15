@@ -56,10 +56,10 @@ function ProposedCell({ s }: { s: Suggestion }) {
   const to = splitPath(s.to);
   const from = splitPath(s.from);
   if (s.kind === "rename") {
-    return <span className="font-mono text-xs text-ink">{to.name}</span>;
+    return <span className="font-mono text-xs text-ink whitespace-normal break-words">{to.name}</span>;
   }
   return (
-    <span className="font-mono text-xs text-ink">
+    <span className="font-mono text-xs text-ink whitespace-normal break-words">
       {to.name !== from.name ? to.name : ""}
       <span className="text-ink-3">
         {to.name !== from.name ? "  ·  " : ""}
@@ -389,23 +389,23 @@ export default function SuggestionsQueue() {
                     </td>
                     <td className="max-w-[280px] px-2 py-2 align-top">
                       <div
-                        className="truncate font-mono text-xs text-ink-3"
+                        className="whitespace-normal break-words font-mono text-xs text-ink-3"
                         title={from.dir}
                       >
                         {from.dir}
                       </div>
                       <div
-                        className="truncate font-mono text-xs font-medium text-ink"
+                        className="whitespace-normal break-words font-mono text-xs font-medium text-ink"
                         title={s.from}
                       >
                         {from.name}
                       </div>
                     </td>
-                    <td className="max-w-[280px] px-2 py-2 align-top">
+                    <td className="max-w-[280px] px-2 py-2 align-top whitespace-normal break-words">
                       <ProposedCell s={s} />
                       {s.kind === "duplicate" && s.keepPath && (
                         <div
-                          className="mt-0.5 truncate font-mono text-[11px] text-ink-3"
+                          className="mt-0.5 font-mono text-[11px] text-ink-3 whitespace-normal break-words"
                           title={s.keepPath}
                         >
                           keep: {splitPath(s.keepPath).name}
@@ -421,9 +421,9 @@ export default function SuggestionsQueue() {
                     <td className="px-2 py-2 align-top">
                       <ConfidenceChip value={s.confidence} />
                     </td>
-                    <td className="max-w-[240px] px-2 py-2 align-top">
+                    <td className="max-w-[240px] px-2 py-2 align-top whitespace-normal break-words">
                       <div
-                        className="truncate text-xs text-ink-2"
+                        className="whitespace-normal break-words text-xs text-ink-2"
                         title={s.reason}
                       >
                         {s.reason}
