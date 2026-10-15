@@ -4,6 +4,7 @@ directories:
   output: release
 files:
   - out/**
+  - src/renderer/src/assets/fileflex-logo.svg
 win:
   target:
     - nsis

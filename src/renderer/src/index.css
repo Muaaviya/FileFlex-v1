@@ -75,17 +75,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 10px;
   height: 10px;
 }
+
 *::-webkit-scrollbar-thumb {
   background: var(--color-line);
   border-radius: 6px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
+
 *::-webkit-scrollbar-thumb:hover {
   background: var(--color-ink-3);
   border: 2px solid transparent;
   background-clip: content-box;
 }
+
 *::-webkit-scrollbar-track {
   background: transparent;
 }
