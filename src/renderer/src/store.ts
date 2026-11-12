@@ -29,6 +29,8 @@ interface AppState {
   progress: ScanProgress | null;
   decisions: Record<string, Decision>;
   selection: Record<string, true>;
+  /** Suggestions un-checked in Review & Approve — excluded from the next apply. */
+  excluded: Record<string, true>;
   history: Batch[];
   toasts: Toast[];
 
@@ -40,7 +42,14 @@ interface AppState {
   startScan: () => Promise<void>;
   runNow: () => Promise<void>;
   prepareSample: () => Promise<void>;
-  decide: (ids: string[], decision: Decision | null) => void;
+  /** Sets a decision (approve/dismiss/applied) on one or more suggestions. */
+  decide: (ids: string[], decision: Decision) => void;
+  /** Reverts a suggestion back to pending (clears its decision). */
+  revert: (ids: string[]) => void;
+  /** Excludes a suggestion from the next apply (Review & Approve uncheck). */
+  exclude: (id: string, on: boolean) => void;
+  /** Clears every exclusion set in Review & Approve. */
+  resetExclusions: () => void;
   toggleSelect: (id: string) => void;
   selectMany: (ids: string[], on: boolean) => void;
   clearSelection: () => void;
@@ -72,6 +81,7 @@ export const useStore = create<AppState>((set, get) => ({
   progress: null,
   decisions: {},
   selection: {},
+  excluded: {},
   history: [],
   toasts: [],
 
@@ -130,7 +140,7 @@ export const useStore = create<AppState>((set, get) => ({
     set({ scanning: true, progress: null });
     try {
       const scan = await api.startScan();
-      set({ scan, decisions: {}, selection: {} });
+      set({ scan, decisions: {}, selection: {}, excluded: {} });
     } catch (e) {
       get().toast(errText(e), "bad");
     } finally {
@@ -143,7 +153,7 @@ export const useStore = create<AppState>((set, get) => ({
     set({ scanning: true, progress: null });
     try {
       const scan = await api.runScanNow();
-      set({ scan, decisions: {}, selection: {} });
+      set({ scan, decisions: {}, selection: {}, excluded: {} });
       get().toast("Scan finished — suggestions updated.", "ok");
     } catch (e) {
       get().toast(errText(e), "bad");
@@ -167,12 +177,34 @@ export const useStore = create<AppState>((set, get) => ({
       const d = { ...state.decisions };
       const sel = { ...state.selection };
       for (const id of ids) {
-        if (decision) d[id] = decision;
-        else delete d[id];
+        d[id] = decision;
         delete sel[id];
       }
       return { decisions: d, selection: sel };
     }),
+
+  revert: (ids) =>
+    set((state) => {
+      const d = { ...state.decisions };
+      const ex = { ...state.excluded };
+      const sel = { ...state.selection };
+      for (const id of ids) {
+        delete d[id];
+        delete ex[id];
+        delete sel[id];
+      }
+      return { decisions: d, excluded: ex, selection: sel };
+    }),
+
+  exclude: (id, on) =>
+    set((state) => {
+      const ex = { ...state.excluded };
+      if (on) ex[id] = true;
+      else delete ex[id];
+      return { excluded: ex };
+    }),
+
+  resetExclusions: () => set({ excluded: {} }),
 
   toggleSelect: (id) =>
     set((state) => {
@@ -195,10 +227,11 @@ export const useStore = create<AppState>((set, get) => ({
   clearSelection: () => set({ selection: {} }),
 
   applyApproved: async () => {
-    const { scan, decisions } = get();
+    const { scan, decisions, excluded } = get();
     if (!scan) return 0;
+    // Excluded suggestions are reviewed-and-skipped — they never reach disk.
     const approved = scan.suggestions.filter(
-      (s) => decisions[s.id] === "approved",
+      (s) => decisions[s.id] === "approved" && !excluded[s.id],
     );
     if (!approved.length) return 0;
     const ops: PlannedOp[] = approved.map((s) => ({
@@ -211,8 +244,12 @@ export const useStore = create<AppState>((set, get) => ({
     try {
       await api.applyBatch({ label, ops });
       const next = { ...get().decisions };
-      for (const s of approved) next[s.id] = "applied";
-      set({ decisions: next, selection: {} });
+      // Every approved suggestion is now handled — applied on disk, or
+      // intentionally skipped after review. Neither lingers in the queue.
+      for (const s of scan.suggestions) {
+        if (decisions[s.id] === "approved") next[s.id] = "applied";
+      }
+      set({ decisions: next, selection: {}, excluded: {} });
       await get().refreshHistory();
       get().toast(
         `Applied ${ops.length} changes. Undo anytime from History.`,
