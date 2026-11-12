@@ -39,16 +39,38 @@ function moveFile(from: string, to: string): void {
   }
 }
 
-/** Applies planned ops in order. Every op is a rename/move — nothing is ever deleted. */
-export function applyOps(ops: PlannedOp[]): BatchOp[] {
+/** Result of applyOps: the op log plus the derived batch status. */
+export interface ApplyResult {
+  ops: BatchOp[];
+  status: Batch["status"];
+}
+
+/**
+ * Applies planned ops in order. **Transactional**: if any op fails, every
+ * already-applied op is rolled back (last-op first) so the filesystem is
+ * left exactly as it was. Returns the op log and a status:
+ * - "applied"  : all ops succeeded
+ * - "failed"   : at least one op failed; everything was rolled back
+ */
+export function applyOps(ops: PlannedOp[]): ApplyResult {
   const results: BatchOp[] = [];
+  /** Ops that were applied and may need rolling back. */
+  const applied: BatchOp[] = [];
+  let failed = false;
   for (const op of ops) {
     try {
       if (!exists(op.from)) throw new Error("Source file no longer exists");
       fs.mkdirSync(path.dirname(op.to), { recursive: true });
       const target = uniqueTarget(op.to, op.from);
       moveFile(op.from, target);
-      results.push({ kind: op.kind, from: op.from, to: target, status: "ok" });
+      const r: BatchOp = {
+        kind: op.kind,
+        from: op.from,
+        to: target,
+        status: "ok",
+      };
+      results.push(r);
+      applied.push(r);
     } catch (e) {
       results.push({
         kind: op.kind,
@@ -57,12 +79,37 @@ export function applyOps(ops: PlannedOp[]): BatchOp[] {
         status: "error",
         error: e instanceof Error ? e.message : String(e),
       });
+      failed = true;
     }
   }
-  return results;
+  if (failed) {
+    // Roll back everything applied so far, last-op first.
+    for (const r of [...applied].reverse()) {
+      try {
+        if (!exists(r.to)) {
+          r.status = "error";
+          r.error = "Applied file is missing; cannot roll back";
+          continue;
+        }
+        fs.mkdirSync(path.dirname(r.from), { recursive: true });
+        const back = uniqueTarget(r.from, r.to);
+        moveFile(r.to, back);
+        r.status = "undone";
+      } catch (e) {
+        r.status = "error";
+        r.error = `Rollback failed: ${e instanceof Error ? e.message : String(e)}`;
+      }
+    }
+    // After full rollback, no ops remain "ok" → status is "failed".
+    return { ops: results, status: "failed" };
+  }
+  return { ops: results, status: "applied" };
 }
 
-/** Reverses a batch: moves every successfully applied op back, last-op first. */
+/**
+ * Reverses a batch: moves every successfully applied op back, last-op first.
+ * Idempotent — ops that are already `undone` or `error` are skipped.
+ */
 export function undoOps(batch: Batch): Batch {
   const ops = [...batch.ops].reverse();
   for (const op of ops) {
@@ -82,9 +129,22 @@ export function undoOps(batch: Batch): Batch {
       op.error = `Undo failed: ${e instanceof Error ? e.message : String(e)}`;
     }
   }
-  const anyOk = batch.ops.some((o) => o.status === "ok");
-  const anyUndone = batch.ops.some((o) => o.status === "undone");
-  batch.status = !anyOk ? "undone" : anyUndone ? "partial" : "applied";
+  batch.status = batchStatusFromOps(batch.ops);
   if (batch.status === "undone") batch.undoneAt = Date.now();
   return batch;
+}
+
+/** Derives the batch status string from its ops. Used by undoOps. */
+export function batchStatusFromOps(ops: BatchOp[]): Batch["status"] {
+  const anyOk = ops.some((o) => o.status === "ok");
+  const anyUndone = ops.some((o) => o.status === "undone");
+  // anyUndone && anyOk → partial; anyUndone && !anyOk → undone;
+  // !anyUndone && anyOk → applied; !anyUndone && !anyOk → failed (all error).
+  return anyUndone
+    ? anyOk
+      ? "partial"
+      : "undone"
+    : anyOk
+      ? "applied"
+      : "failed";
 }
