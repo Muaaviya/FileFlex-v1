@@ -29,6 +29,7 @@ function StatusChip({
     applied: { tone: "ok", label: "Applied" },
     undone: { tone: "neutral", label: "Undone" },
     partial: { tone: "warn", label: "Partial" },
+    failed: { tone: "bad", label: "Failed" },
     ok: { tone: "ok", label: "Done" },
     error: { tone: "bad", label: "Failed" },
   };
@@ -139,8 +140,8 @@ export default function HistoryPage() {
       />
       <TrustBanner>
         Undo moves files back to their original locations, last operation first.
-        If a name is taken, the file returns alongside it with a “(restored)”
-        suffix — nothing is ever lost.
+        If a name is taken, the file returns alongside it with a “(2)” suffix
+        — nothing is ever lost.
       </TrustBanner>
 
       {history.length === 0 ? (

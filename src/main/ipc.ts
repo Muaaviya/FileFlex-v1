@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import type { Batch, PlannedOp, Settings } from "../shared/types";
 import { applyOps, undoOps } from "./applier";
 import { buildSampleData } from "./fixtures";
-import { runScan } from "./scanService";
+import { runScan, isScanInProgress } from "./scanService";
 import { runScheduledScan } from "./scheduler";
 import { DEFAULT_RULES, store } from "./store";
 
@@ -47,6 +47,7 @@ export function registerIpc(getWindow: () => BrowserWindow | null): void {
   ipcMain.handle("rules:reset", () => store.saveRules(DEFAULT_RULES));
 
   ipcMain.handle("scan:start", async (e) => {
+    if (isScanInProgress()) throw new Error("A scan is already running");
     const s = store.getSettings();
     if (!s.folders.length) throw new Error("No folders selected");
     const result = await runScan(s.folders, (p) => {
@@ -59,6 +60,7 @@ export function registerIpc(getWindow: () => BrowserWindow | null): void {
   ipcMain.handle("scan:latest", () => store.getLatestScan());
 
   ipcMain.handle("scan:run-now", async (e) => {
+    if (isScanInProgress()) throw new Error("A scan is already running");
     const s = store.getSettings();
     if (!s.folders.length) throw new Error("No folders selected");
     const result = await runScan(s.folders, (p) => {
@@ -72,6 +74,7 @@ export function registerIpc(getWindow: () => BrowserWindow | null): void {
   });
 
   ipcMain.handle("scan:dry-run", async (e, folders: string[]) => {
+    if (isScanInProgress()) throw new Error("A scan is already running");
     const s = store.getSettings();
     const result = await runScan(folders, (p) => {
       if (!e.sender.isDestroyed()) e.sender.send("scan:progress", p);
@@ -82,12 +85,12 @@ export function registerIpc(getWindow: () => BrowserWindow | null): void {
   ipcMain.handle(
     "apply:batch",
     (_e, req: { label: string; ops: PlannedOp[] }) => {
-      const ops = applyOps(req.ops);
+      const { ops, status } = applyOps(req.ops);
       const batch: Batch = {
         id: randomUUID(),
         label: req.label || `Applied ${ops.length} changes`,
         appliedAt: Date.now(),
-        status: "applied",
+        status,
         ops,
       };
       store.saveBatch(batch);

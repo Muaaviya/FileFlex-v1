@@ -54,7 +54,26 @@ function summarize(files: ScanFile[], suggestions: Suggestion[]) {
   };
 }
 
+/** True while a scan pipeline is actively running — used to guard the scheduler. */
+let scanInProgress = false;
+
+export function isScanInProgress(): boolean {
+  return scanInProgress;
+}
+
 export async function runScan(
+  folders: string[],
+  onProgress?: (p: ScanProgress) => void,
+): Promise<ScanResult> {
+  scanInProgress = true;
+  try {
+    return await runScanInner(folders, onProgress);
+  } finally {
+    scanInProgress = false;
+  }
+}
+
+async function runScanInner(
   folders: string[],
   onProgress?: (p: ScanProgress) => void,
 ): Promise<ScanResult> {

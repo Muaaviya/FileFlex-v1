@@ -86,7 +86,7 @@ export interface Batch {
   label: string;
   appliedAt: number;
   undoneAt?: number;
-  status: "applied" | "undone" | "partial";
+  status: "applied" | "undone" | "partial" | "failed";
   ops: BatchOp[];
 }
 
