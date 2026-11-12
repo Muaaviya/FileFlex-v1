@@ -112,6 +112,7 @@ export default function SuggestionsQueue() {
   const decisions = useStore((s) => s.decisions);
   const selection = useStore((s) => s.selection);
   const decide = useStore((s) => s.decide);
+  const revert = useStore((s) => s.revert);
   const toggleSelect = useStore((s) => s.toggleSelect);
   const selectMany = useStore((s) => s.selectMany);
   const clearSelection = useStore((s) => s.clearSelection);
@@ -461,6 +462,9 @@ export default function SuggestionsQueue() {
             </Button>
             <Button sm onClick={() => decide(selectedIds, "dismissed")}>
               Dismiss
+            </Button>
+            <Button variant="ghost" sm onClick={() => revert(selectedIds)}>
+              Revert
             </Button>
             <Button variant="ghost" sm onClick={clearSelection}>
               Clear

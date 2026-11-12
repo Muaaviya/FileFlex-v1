@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { diffStrings } from "../../../shared/naming";
 import type { Suggestion, SuggestionKind } from "../../../shared/types";
@@ -60,10 +60,12 @@ function DiffRow({
   s,
   included,
   onToggle,
+  onRevert,
 }: {
   s: Suggestion;
   included: boolean;
   onToggle: () => void;
+  onRevert: () => void;
 }) {
   return (
     <div className={`flex gap-4 px-4 py-4 ${included ? "" : "opacity-40"}`}>
@@ -95,6 +97,14 @@ function DiffRow({
           <span className="text-md text-ink-3">{s.detail ?? s.reason}</span>
         </div>
       </div>
+      <button
+        type="button"
+        onClick={onRevert}
+        className="ml-auto shrink-0 text-xs text-ink-3 hover:text-bad-700 underline underline-offset-2"
+        aria-label="Revert this decision"
+      >
+        Revert
+      </button>
     </div>
   );
 }
@@ -110,8 +120,11 @@ export default function ReviewApprove() {
   const navigate = useNavigate();
   const scan = useStore((s) => s.scan);
   const decisions = useStore((s) => s.decisions);
+  const excluded = useStore((s) => s.excluded);
+  const revert = useStore((s) => s.revert);
+  const exclude = useStore((s) => s.exclude);
+  const resetExclusions = useStore((s) => s.resetExclusions);
   const applyApproved = useStore((s) => s.applyApproved);
-  const [excluded, setExcluded] = useState<Record<string, true>>({});
 
   const sections = useMemo<Section[]>(() => {
     if (!scan) return [];
@@ -229,14 +242,8 @@ export default function ReviewApprove() {
                       key={s.id}
                       s={s}
                       included={!excluded[s.id]}
-                      onToggle={() =>
-                        setExcluded((prev) => {
-                          const next = { ...prev };
-                          if (next[s.id]) delete next[s.id];
-                          else next[s.id] = true;
-                          return next;
-                        })
-                      }
+                      onToggle={() => exclude(s.id, !excluded[s.id])}
+                      onRevert={() => revert([s.id])}
                     />
                   ))}
                 </div>
@@ -258,7 +265,7 @@ export default function ReviewApprove() {
               <div className="ml-auto flex items-center gap-2">
                 <Button
                   variant="ghost"
-                  onClick={() => setExcluded({})}
+                  onClick={resetExclusions}
                   disabled={Object.keys(excluded).length === 0}
                 >
                   Reset exclusions
