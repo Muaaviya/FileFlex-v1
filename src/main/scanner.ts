@@ -73,10 +73,6 @@ export async function scanFolders(
       return;
     }
     for (const entry of entries) {
-      if (files.length >= MAX_FILES) {
-        truncated = true;
-        return;
-      }
       if (
         opts.skipHidden &&
         (entry.name.startsWith(".") || entry.name.startsWith("$"))
@@ -87,6 +83,7 @@ export async function scanFolders(
       if (excl.matches(full, entry.name)) continue;
       if (entry.isDirectory()) {
         await walk(full, root, depth + 1);
+        if (truncated) return;
         continue;
       }
       if (!entry.isFile()) continue;
@@ -97,6 +94,11 @@ export async function scanFolders(
         st = await fs.stat(full);
       } catch {
         continue;
+      }
+      // Check before pushing so files.length never exceeds the cap.
+      if (files.length >= MAX_FILES) {
+        truncated = true;
+        return;
       }
       files.push({
         id: createHash("sha1")

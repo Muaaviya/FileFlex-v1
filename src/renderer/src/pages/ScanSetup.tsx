@@ -223,7 +223,7 @@ export default function ScanSetup() {
               >
                 {progress.phase === "scan"
                   ? progress.dir
-                  : "Checksumming for duplicates…"}
+                  : progress.dir ?? "Checksumming for duplicates…"}
               </div>
             )}
           </div>

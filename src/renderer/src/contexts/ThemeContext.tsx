@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 import type { ThemePreset, ThemeSettings } from "../../../shared/types";
 import { useStore } from "../store";
 
@@ -47,9 +53,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return unsubscribe;
   }, []);
 
-  // Determine resolved theme (light/dark) based on mode and system preference
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
-  useEffect(() => {
+  // Determine resolved theme (light/dark) based on mode and system preference.
+  // useLayoutEffect runs before paint so the correct theme is applied on the
+  // first render instead of flashing the default light theme.
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">(
+    theme.mode === "dark" ? "dark" : "light",
+  );
+  useLayoutEffect(() => {
     if (theme.mode === "system") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
       const update = () =>
@@ -61,8 +71,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setResolvedTheme(theme.mode);
   }, [theme.mode]);
 
-  // Apply theme CSS variables
-  useEffect(() => {
+  // Apply theme CSS variables — useLayoutEffect runs before paint so the
+  // initial render already has the right CSS variables (no FOUC).
+  useLayoutEffect(() => {
     applyTheme(theme, resolvedTheme === "dark");
   }, [theme, resolvedTheme]);
 
