@@ -63,13 +63,12 @@ export function registerIpc(getWindow: () => BrowserWindow | null): void {
     if (isScanInProgress()) throw new Error("A scan is already running");
     const s = store.getSettings();
     if (!s.folders.length) throw new Error("No folders selected");
-    const result = await runScan(s.folders, (p) => {
+    // Delegate to the scheduler's run path so a manual "run now" has the same
+    // side effects: advance nextRunAt, notify, and broadcast to windows.
+    const result = await runScheduledScan((p) => {
       if (!e.sender.isDestroyed()) e.sender.send("scan:progress", p);
     });
-    store.saveScan(result);
-    store.updateSettings({
-      scheduler: { ...s.scheduler, lastRunAt: Date.now() },
-    });
+    if (!result) throw new Error("Scheduled scan did not run");
     return result;
   });
 

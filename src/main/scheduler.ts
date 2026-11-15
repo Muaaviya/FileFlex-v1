@@ -29,12 +29,14 @@ export async function check(): Promise<void> {
   await runScheduledScan();
 }
 
-export async function runScheduledScan(): Promise<ScanResult | null> {
+export async function runScheduledScan(
+  onProgress?: (p: import("../shared/types").ScanProgress) => void,
+): Promise<ScanResult | null> {
   if (firing) return null;
   firing = true;
   try {
     const s = store.getSettings();
-    const result = await runScan(s.folders);
+    const result = await runScan(s.folders, onProgress);
     store.saveScan(result);
     store.updateSettings({
       scheduler: {
